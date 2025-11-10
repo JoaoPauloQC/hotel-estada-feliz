@@ -3,11 +3,16 @@ import math
 import time
 import requests
 import hashlib
+from src.database import engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from src.Model.models import (Usuario,Reserva,Quarto,Hospede,Tipo_de_quarto)
+from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from src import app
-from src.Model.guest import guests,Guest
-from src.Model.reserva import reservas,Reserva
-from src.Model.room import rooms,Room
+
+
+SessionLocal = scoped_session(sessionmaker(bind=engine))
+
 mykey = hashlib.sha256()
 
 def isEmailValid(email):
@@ -17,32 +22,15 @@ def isEmailValid(email):
 
 
 def findReservaByUserId(id):
-    reservasByName = []
-    for reserva in reservas:
-        if reserva.id_hospede == id:
-            reservasByName.append(reserva)
-
-    return reservasByName
+   return None
 
 def roomsByNameId(id):
-    reservasbyname = findReservaByUserId(id)
-    print(f"Reservas por nome: {reservasbyname}")
-    roomsbyid = []
-    print(f"Reserva 1: {reservasbyname[0].numero_quarto}")
-    roomsid = [reserva.numero_quarto for reserva in reservasbyname]
-    print(f"Rooms por id {roomsid}")
-    for room in rooms:
-        if str(room.room_number) in str(roomsid):
-            roomsbyid.append(room)
+    return none
 
-    print(roomsbyid)
-    return roomsbyid
+    
 
 def login(completeName):
-    print(completeName)
-    for user in guests:
-        if user.complete_name ==  completeName:
-            return user
+   
     return None
 
 def fetchGithubImg(githubProfile):
@@ -52,8 +40,7 @@ def fetchGithubImg(githubProfile):
         return data['avatar_url']
     except:
         return None
-
-
+    
 @app.route("/", methods=["POST","GET"])
 def index():
     method = request.method
@@ -74,3 +61,17 @@ def index():
 
 
     return render_template("index.html")
+
+@app.route("/register",methods=["POST","GET"])
+def register():
+    db = SessionLocal()
+    if request.method == "POST":
+        nome = request.form.get("fullname")
+        email = request.form.get("email")
+        senha = request.form.get("password")
+        novo_usuario = Usuario(nome_completo = nome,
+                               email = email, senha_hash = generate_password_hash(senha))
+        db.add(novo_usuario)
+        db.commit()
+        return render_template("register.html") 
+    return render_template("register.html") 
