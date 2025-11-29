@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nova Reserva — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link admin__nav-link--active">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulário -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">➕ Cadastrar Nova Reserva</h2>
+      </div>
+
+      <form class="admin__form" method="POST">
+        
+        <!-- Dados do Hóspede -->
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="id_hospede_principal">Hóspede Principal *</label>
+            <select class="admin__select" id="id_hospede_principal" name="id_hospede_principal" required>
+              <option value="">-- Selecione um hóspede --</option>
+              {% for hospede in hospedes %}
+                <option value="{{ hospede.id_hospede }}">
+                  {{ hospede.nome_completo }} - {{ hospede.documento }}
+                </option>
+              {% endfor %}
+            </select>
+            <small>
+              💡 Não encontrou o hóspede? <a href="{{ url_for('admin_novo_hospede') }}" style="color: var(--accent);">Cadastre aqui</a>
+            </small>
+          </div>
+        </div>
+
+        <!-- Datas -->
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="data_checkin">Data de Check-in *</label>
+            <input 
+              class="admin__input" 
+              type="date" 
+              id="data_checkin" 
+              name="data_checkin"
+              required
+            />
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="data_checkout">Data de Check-out *</label>
+            <input 
+              class="admin__input" 
+              type="date" 
+              id="data_checkout" 
+              name="data_checkout"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Quarto e Tipo -->
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="id_tipo_quarto">Tipo de Quarto *</label>
+            <select class="admin__select" id="id_tipo_quarto" name="id_tipo_quarto" required>
+              <option value="">-- Selecione o tipo --</option>
+              {% for tipo in tipos_quarto %}
+                <option value="{{ tipo.id }}" data-preco="{{ tipo.preco_diaria_base }}">
+                  {{ tipo.nome }} - R$ {{  tipo.nome_tipo + " - " + "%.2f"|format(tipo.preco_diaria_base) }}/diária
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="id_quarto">Quarto</label>
+            <select class="admin__select" id="id_quarto" name="numero_quarto">
+              <option value="">-- Atribuir depois --</option>
+              {% for quarto in quartos %}
+                <option value="{{ quarto.numero_quarto }}">
+                  Quarto {{ quarto.numero_quarto }} - {{ quarto.tipo_de_quarto.nome_tipo }}
+                </option>
+              {% endfor %}
+            </select>
+            <small>
+              💡 Você pode atribuir o quarto agora ou deixar para depois
+            </small>
+          </div>
+        </div>
+
+        <!-- Número de Hóspedes -->
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="numero_hospedes">Número de Hóspedes *</label>
+            <input 
+              class="admin__input" 
+              type="number" 
+              id="numero_hospedes" 
+              name="numero_hospedes"
+              min="1"
+              placeholder="Ex: 2"
+              required
+            />
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="valor_total">Valor Total (R$)</label>
+            <input 
+              class="admin__input" 
+              type="number" 
+              step="0.01"
+              id="valor_total" 
+              name="valor_total"
+              placeholder="Calculado automaticamente"
+              readonly
+            />
+            <small>
+              💡 Calculado com base nas diárias e período da reserva
+            </small>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="status">Status da Reserva *</label>
+            <select class="admin__select" id="status" name="status_reserva" required>
+              <option value="pendente">Pendente</option>
+              <option value="confirmada" selected>Confirmada</option>
+              <option value="checkin">Check-in Realizado</option>
+              <option value="checkout">Check-out Realizado</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="admin__field">
+          <label class="admin__label" for="observacoes">Observações</label>
+          <textarea 
+            class="admin__textarea" 
+            id="observacoes" 
+            name="observacoes"
+            placeholder="Digite observações sobre a reserva (pedidos especiais, restrições, etc.)"
+          ></textarea>
+        </div>
+
+        <div class="admin__form-actions">
+          <button type="submit" class="admin__btn admin__btn--primary">
+            Cadastrar Reserva
+          </button>
+          <a href="{{ url_for('admin_reservas') }}" class="admin__btn admin__btn--secondary">
+            Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    // Cálculo automático do valor total
+    const dataCheckin = document.getElementById('data_checkin');
+    const dataCheckout = document.getElementById('data_checkout');
+    const tipoQuarto = document.getElementById('id_tipo_quarto');
+    const valorTotal = document.getElementById('valor_total');
+
+    function calcularValorTotal() {
+      const checkin = new Date(dataCheckin.value);
+      const checkout = new Date(dataCheckout.value);
+      const selectedOption = tipoQuarto.options[tipoQuarto.selectedIndex];
+      const precoDiaria = parseFloat(selectedOption.getAttribute('data-preco')) || 0;
+
+      if (checkin && checkout && checkin < checkout && precoDiaria > 0) {
+        const diffTime = Math.abs(checkout - checkin);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const total = diffDays * precoDiaria;
+        valorTotal.value = total.toFixed(2);
+      } else {
+        valorTotal.value = '';
+      }
+    }
+
+    dataCheckin.addEventListener('change', calcularValorTotal);
+    dataCheckout.addEventListener('change', calcularValorTotal);
+    tipoQuarto.addEventListener('change', calcularValorTotal);
+  </script>
+
+</body>
+</html>

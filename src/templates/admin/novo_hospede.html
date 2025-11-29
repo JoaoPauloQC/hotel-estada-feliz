@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Novo Hóspede — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link admin__nav-link--active">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulário -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">➕ Cadastrar Novo Hóspede</h2>
+      </div>
+
+      <form class="admin__form" method="POST">
+        
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="nome_completo">Nome Completo *</label>
+            <input 
+              class="admin__input" 
+              type="text" 
+              id="nome_completo" 
+              name="nome_completo"
+              placeholder="Ex: João da Silva"
+              required
+            />
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="documento">Documento (CPF/RG) *</label>
+            <input 
+              class="admin__input" 
+              type="text" 
+              id="documento" 
+              name="documento"
+              placeholder="Ex: 123.456.789-00"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="email">Email</label>
+            <input 
+              class="admin__input" 
+              type="email" 
+              id="email" 
+              name="email"
+              placeholder="Ex: joao@example.com"
+            />
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="telefone">Telefone</label>
+            <input 
+              class="admin__input" 
+              type="tel" 
+              id="telefone" 
+              name="telefone"
+              placeholder="Ex: (11) 98765-4321"
+            />
+          </div>
+        </div>
+
+        <div class="admin__field">
+          <label class="admin__label" for="id_usuario_sistema">Vincular a Usuário do Sistema (opcional)</label>
+          <select class="admin__select" id="id_usuario_sistema" name="id_usuario_sistema">
+            <option value="">-- Nenhum (não vincular) --</option>
+            {% for usuario in usuarios %}
+              <option value="{{ usuario.id }}">
+                {{ usuario.nome_completo }} ({{ usuario.email }})
+              </option>
+            {% endfor %}
+          </select>
+          <small style="color: var(--muted); font-size: 12px; margin-top: 4px;">
+            💡 Vincule este hóspede a um usuário para permitir que ele faça login no sistema
+          </small>
+        </div>
+
+        <div class="admin__form-actions">
+          <button type="submit" class="admin__btn admin__btn--primary">
+            Cadastrar Hóspede
+          </button>
+          <a href="{{ url_for('admin_hospedes') }}" class="admin__btn admin__btn--secondary">
+            Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</body>
+</html>

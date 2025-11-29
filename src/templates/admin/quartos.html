@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de Quartos — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link admin__nav-link--active">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Lista de Quartos -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">🚪 Todos os Quartos</h2>
+        <a href="{{ url_for('admin_novo_quarto') }}" class="admin__btn admin__btn--primary admin__btn--small">
+          + Novo Quarto
+        </a>
+      </div>
+
+      {% if quartos %}
+        <div class="admin__table-wrapper">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Tipo</th>
+                <th>Capacidade</th>
+                <th>Localização</th>
+                <th>Status Limpeza</th>
+                <th>Preço/Diária</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in quartos %}
+                <tr>
+                  <td><strong>{{ item.quarto.numero_quarto }}</strong></td>
+                  <td>
+                    {% if item.tipo %}
+                      {{ item.tipo.nome_tipo }}
+                    {% else %}
+                      <span style="color: var(--muted)">N/A</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.tipo %}
+                      {{ item.tipo.capacidade_maxima }} pessoas
+                    {% else %}
+                      <span style="color: var(--muted)">N/A</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ item.quarto.localizacao or '-' }}</td>
+                  <td>
+                    {% if item.quarto.status_limpeza == 'limpo' %}
+                      <span class="admin__badge admin__badge--success">Limpo</span>
+                    {% elif item.quarto.status_limpeza == 'sujo' %}
+                      <span class="admin__badge admin__badge--danger">Sujo</span>
+                    {% elif item.quarto.status_limpeza == 'em limpeza' %}
+                      <span class="admin__badge admin__badge--warning">Em Limpeza</span>
+                    {% else %}
+                      <span class="admin__badge admin__badge--info">{{ item.quarto.status_limpeza }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.tipo %}
+                      R$ {{ "%.2f"|format(item.tipo.preco_diaria_base) }}
+                    {% else %}
+                      <span style="color: var(--muted)">N/A</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="admin__table-actions">
+                      <a href="{{ url_for('admin_editar_quarto', numero_quarto=item.quarto.numero_quarto) }}" 
+                         class="admin__btn admin__btn--secondary admin__btn--small">
+                        Editar
+                      </a>
+                      <a href="{{ url_for('admin_deletar_quarto', numero_quarto=item.quarto.numero_quarto) }}" 
+                         class="admin__btn admin__btn--danger admin__btn--small"
+                         onclick="return confirm('Tem certeza que deseja deletar este quarto?')">
+                        Deletar
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="admin__empty">
+          <div class="admin__empty-icon">🚪</div>
+          <p class="admin__empty-text">Nenhum quarto cadastrado.</p>
+          <a href="{{ url_for('admin_novo_quarto') }}" class="admin__btn admin__btn--primary">
+            Cadastrar Primeiro Quarto
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>

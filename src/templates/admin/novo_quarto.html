@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Novo Quarto — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link admin__nav-link--active">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulário -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">➕ Cadastrar Novo Quarto</h2>
+      </div>
+
+      <form class="admin__form" method="POST">
+        
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="numero_quarto">Número do Quarto *</label>
+            <input 
+              class="admin__input" 
+              type="number" 
+              id="numero_quarto" 
+              name="numero_quarto"
+              placeholder="Ex: 101"
+              required
+            />
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="id_tipo">Tipo de Quarto *</label>
+            <select class="admin__select" id="id_tipo" name="id_tipo" required>
+              <option value="">Selecione o tipo</option>
+              {% for tipo in tipos %}
+                <option value="{{ tipo.id_tipo }}">
+                  {{ tipo.nome_tipo }} - R$ {{ "%.2f"|format(tipo.preco_diaria_base) }}/diária
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="admin__form-row">
+          <div class="admin__field">
+            <label class="admin__label" for="status_limpeza">Status de Limpeza</label>
+            <select class="admin__select" id="status_limpeza" name="status_limpeza">
+              <option value="sujo">Sujo</option>
+              <option value="limpo">Limpo</option>
+              <option value="em limpeza">Em Limpeza</option>
+            </select>
+          </div>
+
+          <div class="admin__field">
+            <label class="admin__label" for="localizacao">Localização</label>
+            <input 
+              class="admin__input" 
+              type="text" 
+              id="localizacao" 
+              name="localizacao"
+              placeholder="Ex: 1º Andar - Ala Norte"
+            />
+          </div>
+        </div>
+
+        <div class="admin__form-actions">
+          <button type="submit" class="admin__btn admin__btn--primary">
+            Cadastrar Quarto
+          </button>
+          <a href="{{ url_for('admin_quartos') }}" class="admin__btn admin__btn--secondary">
+            Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</body>
+</html>

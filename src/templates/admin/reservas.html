@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de Reservas — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link admin__nav-link--active">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Lista de Reservas -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">📋 Todas as Reservas</h2>
+        <a href="{{ url_for('admin_nova_reserva') }}" class="admin__btn admin__btn--primary">
+          ➕ Nova Reserva
+        </a>
+      </div>
+
+      {% if reservas %}
+        <div class="admin__table-wrapper">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Hóspede</th>
+                <th>Quarto</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+                <th>Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in reservas %}
+                <tr>
+                  <td>#{{ item.reserva.id_reserva }}</td>
+                  <td>
+                    {% if item.hospede %}
+                      {{ item.hospede.nome_completo }}
+                    {% else %}
+                      <span style="color: var(--muted)">N/A</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.quarto %}
+                      Quarto {{ item.quarto.numero_quarto }}
+                    {% else %}
+                      <span style="color: var(--muted)">N/A</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ item.reserva.data_checkin.strftime('%d/%m/%Y') if item.reserva.data_checkin else 'N/A' }}</td>
+                  <td>{{ item.reserva.data_checkout.strftime('%d/%m/%Y') if item.reserva.data_checkout else 'N/A' }}</td>
+                  <td>
+                    {% if item.reserva.status_reserva == 'Confirmada' %}
+                      <span class="admin__badge admin__badge--success">{{ item.reserva.status_reserva }}</span>
+                    {% elif item.reserva.status_reserva == 'Pendente' %}
+                      <span class="admin__badge admin__badge--warning">{{ item.reserva.status_reserva }}</span>
+                    {% elif item.reserva.status_reserva == 'Cancelada' %}
+                      <span class="admin__badge admin__badge--danger">{{ item.reserva.status_reserva }}</span>
+                    {% else %}
+                      <span class="admin__badge admin__badge--info">{{ item.reserva.status_reserva }}</span>
+                    {% endif %}
+                  </td>
+                  <td>R$ {{ "%.2f"|format(item.reserva.valor_total) }}</td>
+                  <td>
+                    <div class="admin__table-actions">
+                      <a href="{{ url_for('admin_editar_reserva', id_reserva=item.reserva.id_reserva) }}" 
+                         class="admin__btn admin__btn--secondary admin__btn--small">
+                        Editar
+                      </a>
+                      <a href="{{ url_for('admin_deletar_reserva', id_reserva=item.reserva.id_reserva) }}" 
+                         class="admin__btn admin__btn--danger admin__btn--small"
+                         onclick="return confirm('Tem certeza que deseja deletar esta reserva?')">
+                        Deletar
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="admin__empty">
+          <div class="admin__empty-icon">📭</div>
+          <p class="admin__empty-text">Nenhuma reserva registrada.</p>
+          <a href="{{ url_for('admin_nova_reserva') }}" class="admin__btn admin__btn--primary" style="margin-top: 20px;">
+            ➕ Criar Primeira Reserva
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>

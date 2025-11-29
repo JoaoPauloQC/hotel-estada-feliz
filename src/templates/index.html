@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Entrar — Minha App</title>
-  <link rel="stylesheet" href="{{ url_for('static',filename='login.css')}}">
-  <style>
-    
-  </style>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
+
 <body>
   <div class="login__wrapper">
+    
     <div class="login__hero">
       <div class="login__logo">
         <div class="login__brand">Hotel Estada</div>
@@ -20,17 +20,41 @@
     </div>
 
     <div class="login__card">
+
+      <!-- FLASH MESSAGES -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash__container">
+            {% for category, message in messages %}
+              <div class="flash flash--{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      <!-- FIM FLASH -->
+
       <form class="login__form" method="POST" action="">
+        
         <div class="login__field">
-          <label class="login__label" for="username">Nome de usuário</label>
-          <input class="login__input" id="username" name="username" type="text" placeholder="Digite seu nome" required>
+          <label class="login__label" for="email">Email</label>
+          <input class="login__input" id="username" name="email" type="text" placeholder="Digite seu email" required>
         </div>
+
         <div class="login__field">
-            <input class="login__input" id="password" name="password" type="password" placeholder="Digite sua senha" required>
+          <label class="login__label" for="password">Senha</label>
+          <input class="login__input" id="password" name="password" type="password" placeholder="Digite sua senha" required>
         </div>
+
         <div class="login__actions">
           <button class="login__btn" type="submit">Entrar</button>
         </div>
+
+        <div class="login__create">
+          <a href="/register" class="login__link">Criar conta</a>
+        </div>
+
       </form>
     </div>
   </div>

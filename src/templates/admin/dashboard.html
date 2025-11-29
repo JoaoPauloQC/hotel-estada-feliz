@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Admin — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link admin__nav-link--active">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Estatísticas -->
+    <div class="admin__stats">
+      <div class="admin__stat-card">
+        <div class="admin__stat-label">Total de Reservas</div>
+        <div class="admin__stat-value">{{ total_reservas }}</div>
+      </div>
+      
+      <div class="admin__stat-card">
+        <div class="admin__stat-label">Reservas Ativas</div>
+        <div class="admin__stat-value">{{ reservas_ativas }}</div>
+      </div>
+      
+      <div class="admin__stat-card">
+        <div class="admin__stat-label">Total de Quartos</div>
+        <div class="admin__stat-value">{{ total_quartos }}</div>
+      </div>
+      
+      <div class="admin__stat-card">
+        <div class="admin__stat-label">Quartos Disponíveis</div>
+        <div class="admin__stat-value">{{ quartos_disponiveis }}</div>
+      </div>
+      
+      <div class="admin__stat-card">
+        <div class="admin__stat-label">Total de Hóspedes</div>
+        <div class="admin__stat-value">{{ total_hospedes }}</div>
+      </div>
+    </div>
+
+    <!-- Reservas Recentes -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">📋 Reservas Recentes</h2>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__btn admin__btn--secondary admin__btn--small">
+          Ver todas
+        </a>
+      </div>
+
+      {% if reservas_recentes %}
+        <div class="admin__table-wrapper">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Quarto</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reserva in reservas_recentes %}
+                <tr>
+                  <td>#{{ reserva.id_reserva }}</td>
+                  <td>Quarto {{ reserva.numero_quarto }}</td>
+                  <td>{{ reserva.data_checkin }}</td>
+                  <td>{{ reserva.data_checkout }}</td>
+                  <td>
+                    {% if reserva.status_reserva == 'Confirmada' %}
+                      <span class="admin__badge admin__badge--success">{{ reserva.status_reserva }}</span>
+                    {% elif reserva.status_reserva == 'Pendente' %}
+                      <span class="admin__badge admin__badge--warning">{{ reserva.status_reserva }}</span>
+                    {% else %}
+                      <span class="admin__badge admin__badge--info">{{ reserva.status_reserva }}</span>
+                    {% endif %}
+                  </td>
+                  <td>R$ {{ "%.2f"|format(reserva.valor_total) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="admin__empty">
+          <div class="admin__empty-icon">📭</div>
+          <p class="admin__empty-text">Nenhuma reserva registrada ainda.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>

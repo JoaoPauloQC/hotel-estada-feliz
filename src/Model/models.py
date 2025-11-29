@@ -42,12 +42,16 @@ class Tipo_de_quarto(Base):
      preco_diaria_base = Column(DECIMAL(precision=10,scale=2),nullable=False)
      descricao = Column(Text)
 
+     quartos = relationship("Quarto",back_populates="tipo_de_quarto")
+
 class Quarto(Base):
     __tablename__ = 'quarto'
     numero_quarto = Column(Integer,primary_key=True,unique=True)
     id_tipo = Column(Integer,ForeignKey("tipo_de_quarto.id_tipo"))
     status_limpeza = Column(String(20),default='sujo',nullable=False)
     localizacao = Column(String(50))
+
+    tipo_de_quarto = relationship("Tipo_de_quarto", back_populates="quartos")
 
 class Perfil(Base):
     __tablename__ = 'perfil'

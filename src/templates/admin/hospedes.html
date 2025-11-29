@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de Hóspedes — Hotel Estada</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body>
+  <div class="admin__container">
+    
+    <!-- Header -->
+    <header class="admin__header">
+      <h1 class="admin__title">🏨 Painel Administrativo</h1>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin__nav-link">Dashboard</a>
+        <a href="{{ url_for('admin_reservas') }}" class="admin__nav-link">Reservas</a>
+        <a href="{{ url_for('admin_quartos') }}" class="admin__nav-link">Quartos</a>
+        <a href="{{ url_for('admin_hospedes') }}" class="admin__nav-link admin__nav-link--active">Hóspedes</a>
+        <a href="{{ url_for('admin_tipos_quarto') }}" class="admin__nav-link">Tipos</a>
+        <a href="{{ url_for('logout') }}" class="admin__nav-link">Sair</a>
+      </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash__container">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Lista de Hóspedes -->
+    <div class="admin__card">
+      <div class="admin__card-header">
+        <h2 class="admin__card-title">👥 Todos os Hóspedes</h2>
+        <a href="{{ url_for('admin_novo_hospede') }}" class="admin__btn admin__btn--primary admin__btn--small">
+          + Novo Hóspede
+        </a>
+      </div>
+
+      {% if hospedes_data %}
+        <div class="admin__table-wrapper">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome Completo</th>
+                <th>Documento</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Usuário Vinculado</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in hospedes_data %}
+                <tr>
+                  <td>#{{ item.hospede.id_hospede }}</td>
+                  <td><strong>{{ item.hospede.nome_completo }}</strong></td>
+                  <td>{{ item.hospede.documento }}</td>
+                  <td>{{ item.hospede.email or '-' }}</td>
+                  <td>{{ item.hospede.telefone or '-' }}</td>
+                  <td>
+                    {% if item.usuario %}
+                      <span class="admin__badge admin__badge--success">
+                        ✓ {{ item.usuario.email }}
+                      </span>
+                    {% else %}
+                      <span class="admin__badge admin__badge--warning">
+                        ✗ Não vinculado
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="admin__table-actions">
+                      <a href="{{ url_for('admin_editar_hospede', id_hospede=item.hospede.id_hospede) }}" 
+                         class="admin__btn admin__btn--secondary admin__btn--small">
+                        Editar
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="admin__empty">
+          <div class="admin__empty-icon">👥</div>
+          <p class="admin__empty-text">Nenhum hóspede cadastrado.</p>
+          <a href="{{ url_for('admin_novo_hospede') }}" class="admin__btn admin__btn--primary">
+            Cadastrar Primeiro Hóspede
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</body>
+</html>
