@@ -18,7 +18,7 @@
     </header>
 
     <div class="guest__card">
-      <h2>Bem-vindo, {{ user }} 👋</h2>
+      <h2>Bem-vindo, {{ user.nome_completo }} 👋</h2>
       <p>Aqui você pode visualizar suas reservas, histórico de estadias e solicitar serviços do hotel.</p>
     </div>
 
@@ -36,9 +36,9 @@
         <tbody>
           {% for room in rooms %}
           <tr>
-            <td>{{ room.room_number }}</td>
-            <td>{{ room.cleaningStatus }}</td>
-            <td>{{ room.location }}</td>
+            <td>{{ room.numero_quarto }}</td>
+            <td>{{ room.status_limpeza }}</td>
+            <td>{{ room.localizacao }}</td>
             <td>Térreo</td>
           </tr>
           {% endfor %}
